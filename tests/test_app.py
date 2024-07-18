@@ -69,6 +69,24 @@ def test_update_user(client):
     }
 
 
+def test_update_user_with_invalid_id(client):
+    response = client.put(
+        '/users/2',
+        json={
+            'id': 2,
+            'username': 'testusername3',
+            'email': 'test@test.com',
+            'password': '123',
+        },
+    )
+    assert response.json() == {'detail': 'User not found'}
+
+
 def test_delete_user(client):
     response = client.delete('/users/1')
     assert response.json() == {'message': 'User deleted'}
+
+
+def test_delete_user_with_invalid_id(client):
+    response = client.delete('/users/2')
+    assert response.json() == {'detail': 'User not found'}
