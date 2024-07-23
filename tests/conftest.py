@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
@@ -45,3 +45,10 @@ def user(session):
     session.commit()
     session.refresh(user)
     return user
+
+
+@pytest.fixture()
+def fake_user(session):
+    user_id = 2
+    db_user = session.scalar(select(User).where(User.id == user_id))
+    return db_user

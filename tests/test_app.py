@@ -1,5 +1,8 @@
 from http import HTTPStatus
 
+from sqlalchemy import select
+
+from fast_zero.models import User
 from fast_zero.schemas import UserPublic
 
 
@@ -44,6 +47,30 @@ def test_create_user(client):
     }
 
 
+def test_create_user_with_username_already_existent(client, user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'test',
+            'email': 'test2@test.com',
+            'password': 'password',
+        },
+    )
+    assert response.json() == {'detail': 'Username already exists'}
+
+
+def test_create_user_with_email_already_existent(client, user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'test2',
+            'email': 'test@test.com',
+            'password': 'password',
+        },
+    )
+    assert response.json() == {'detail': 'Email already exists'}
+
+
 def test_read_users(client):
     response = client.get('/users/')
     assert response.status_code == HTTPStatus.OK
@@ -56,6 +83,22 @@ def test_read_users_with_user(client, user):
     response = client.get('/users/')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'users': [user_schema]}
+
+
+def test_read_user_by_id(client, session, user):
+    response = client.get('/users/1')
+    user_id = 1
+    db_user = session.scalar(select(User).where(User.id == user_id))
+    session.refresh(db_user)
+    db_user = UserPublic.model_validate(db_user).model_dump()
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == db_user
+
+
+def test_read_user_by_id_with_invalid_id(client, fake_user):
+    response = client.get('/users/2')
+    assert fake_user is None
+    assert response.json() == {'detail': 'User not found'}
 
 
 def test_update_user(client, user):
@@ -75,7 +118,7 @@ def test_update_user(client, user):
     }
 
 
-def test_update_user_with_invalid_id(client):
+def test_update_user_with_invalid_id(client, fake_user):
     response = client.put(
         '/users/2',
         json={
@@ -85,6 +128,7 @@ def test_update_user_with_invalid_id(client):
             'password': '123',
         },
     )
+    assert fake_user is None
     assert response.json() == {'detail': 'User not found'}
 
 
@@ -93,6 +137,7 @@ def test_delete_user(client, user):
     assert response.json() == {'message': 'User deleted'}
 
 
-def test_delete_user_with_invalid_id(client):
+def test_delete_user_with_invalid_id(client, fake_user):
     response = client.delete('/users/2')
+    assert fake_user is None
     assert response.json() == {'detail': 'User not found'}
