@@ -20,3 +20,9 @@ class UserPublic(BaseModel):
 
 class UserList(BaseModel):
     users: list[UserPublic]
+
+
+class Token(BaseModel):
+    access_token: str
+    # token_type é como o token deve ser usado
+    token_type: str  # deve ser passado no header do post
