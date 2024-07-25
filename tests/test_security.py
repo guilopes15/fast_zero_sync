@@ -1,8 +1,15 @@
 from http import HTTPStatus
 
-from jwt import decode
+import pytest
+from fastapi import HTTPException
+from jwt import decode, encode
 
-from fast_zero.security import ALGORITHM, SECRET_KEY, create_access_token
+from fast_zero.security import (
+    ALGORITHM,
+    SECRET_KEY,
+    create_access_token,
+    get_current_user,
+)
 
 
 def test_jwt():
@@ -21,3 +28,18 @@ def test_jwt_invalid_token(client):
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == {'detail': 'Could not validate credentials'}
+
+
+def test_get_current_user_not_found(token, session):
+    data = {'sub': 'None@none.com'}
+    token = encode(data, SECRET_KEY, algorithm=ALGORITHM)
+    credentials_exception = HTTPException(
+        status_code=HTTPStatus.UNAUTHORIZED,
+        detail='Could not validate credentials',
+        headers={'www-Authenticate': 'Bearer'},
+    )
+
+    with pytest.raises(HTTPException) as ex:
+        get_current_user(session, token=token)
+
+    assert ex.value.detail == credentials_exception.detail

@@ -1,8 +1,5 @@
 from http import HTTPStatus
 
-from sqlalchemy import select
-
-from fast_zero.models import User
 from fast_zero.schemas import UserPublic
 
 
@@ -85,19 +82,15 @@ def test_read_users_with_user(client, user):
     assert response.json() == {'users': [user_schema]}
 
 
-def test_read_user_by_id(client, session, user):
-    response = client.get('/users/1')
-    user_id = 1
-    db_user = session.scalar(select(User).where(User.id == user_id))
-    session.refresh(db_user)
-    db_user = UserPublic.model_validate(db_user).model_dump()
+def test_read_user_by_id(client, user):
+    response = client.get(f'/users/{user.id}')
+    db_user = UserPublic.model_validate(user).model_dump()
     assert response.status_code == HTTPStatus.OK
     assert response.json() == db_user
 
 
-def test_read_user_by_id_with_invalid_id(client, fake_user):
+def test_read_user_by_id_with_invalid_id(client, user):
     response = client.get('/users/2')
-    assert fake_user is None
     assert response.json() == {'detail': 'User not found'}
 
 
@@ -119,18 +112,19 @@ def test_update_user(client, user, token):
     }
 
 
-def test_update_user_with_invalid_id(client, fake_user):
+def test_update_user_with_invalid_id(client, token):
     response = client.put(
-        '/users/2',
+        '/users/3',
+        headers={'Authorization': f'Bearer {token}'},
         json={
-            'id': 2,
-            'username': 'testusername3',
+            'id': 3,
+            'username': 'test3',
             'email': 'test@test.com',
             'password': '123',
         },
     )
-    assert fake_user is None
-    assert response.json() == {'detail': 'User not found'}
+
+    assert response.json() == {'detail': 'Not enough permission'}
 
 
 def test_delete_user(client, user, token):
@@ -140,10 +134,12 @@ def test_delete_user(client, user, token):
     assert response.json() == {'message': 'User deleted'}
 
 
-def test_delete_user_with_invalid_id(client, fake_user):
-    response = client.delete('/users/2')
-    assert fake_user is None
-    assert response.json() == {'detail': 'User not found'}
+def test_delete_user_with_invalid_id(client, token):
+    response = client.delete(
+        '/users/3',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+    assert response.json() == {'detail': 'Not enough permission'}
 
 
 def test_get_token(client, user):
@@ -158,3 +154,14 @@ def test_get_token(client, user):
     assert response.status_code == HTTPStatus.OK
     assert token['token_type'] == 'Bearer'
     assert 'access_token' in token
+
+
+def test_get_token_with_invalid_username_or_password(client):
+    response = client.post(
+        '/token',
+        data={
+            'username': 'test_invalid@test.com',
+            'password': '123456',
+        },
+    )
+    assert response.json() == {'detail': 'Incorrect email or password'}
