@@ -43,7 +43,7 @@ class Todo:
     user_id: Mapped[int] = mapped_column(
         ForeignKey('users.id')  # user é o tablename
     )
-    
+
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
     )

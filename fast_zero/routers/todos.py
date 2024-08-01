@@ -19,12 +19,12 @@ from fast_zero.security import get_current_user
 
 router = APIRouter(prefix='/todos', tags=['todos'])
 
-Session = Annotated[Session, Depends(get_session)]
-CurrentUser = Annotated[User, Depends(get_current_user)]
+T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.post('/', response_model=TodoPublic)
-def create_todo(todo: TodoSchema, session: Session, user: CurrentUser):
+def create_todo(todo: TodoSchema, session: T_Session, user: T_CurrentUser):
     db_todo = Todo(
         title=todo.title,
         description=todo.description,
@@ -41,8 +41,8 @@ def create_todo(todo: TodoSchema, session: Session, user: CurrentUser):
 
 @router.get('/', response_model=TodoList)
 def list_todos(  # noqa
-    session: Session,
-    user: CurrentUser,
+    session: T_Session,
+    user: T_CurrentUser,
     title: str | None = None,
     description: str | None = None,
     state: str | None = None,
@@ -66,7 +66,7 @@ def list_todos(  # noqa
 
 
 @router.delete('/{todo_id}', response_model=Message)
-def delete_todo(todo_id: int, session: Session, user: CurrentUser):
+def delete_todo(todo_id: int, session: T_Session, user: T_CurrentUser):
     todo = session.scalar(
         select(Todo).where(Todo.user_id == user.id, Todo.id == todo_id)
     )
@@ -81,7 +81,7 @@ def delete_todo(todo_id: int, session: Session, user: CurrentUser):
 
 @router.patch('/{todo_id}', response_model=TodoPublic)
 def path_todo(
-    todo_id: int, session: Session, user: CurrentUser, todo: TodoUpdate
+    todo_id: int, session: T_Session, user: T_CurrentUser, todo: TodoUpdate
 ):
     db_todo = session.scalar(
         select(Todo).where(Todo.user_id == user.id, Todo.id == todo_id)

@@ -1,10 +1,12 @@
 from http import HTTPStatus
 
-from fast_zero.models import TodoState
+from sqlalchemy import select
+
+from fast_zero.models import Todo, TodoState
 from tests.conftest import TodoFactory
 
 
-def test_create_todo(client, token):
+def test_create_todo(client, session, user, token):
     response = client.post(
         '/todos/',
         headers={'Authorization': f'Bearer {token}'},
@@ -15,11 +17,19 @@ def test_create_todo(client, token):
         },
     )
 
+    new_todo = session.scalar(
+        select(Todo)
+        .where(Todo.user_id == user.id)
+        .filter(Todo.title.contains('Test todo'))
+    )
+
     assert response.json() == {
         'id': 1,
         'title': 'Test todo',
         'description': 'Test todo description',
         'state': 'draft',
+        'created_at': new_todo.created_at.strftime('%Y-%m-%dT%H:%M:%S'),
+        'updated_at': new_todo.updated_at.strftime('%Y-%m-%dT%H:%M:%S'),
     }
 
 
