@@ -23,7 +23,11 @@ def test_create_todo(client, session, user, token):
         .filter(Todo.title.contains('Test todo'))
     )
 
-    assert response.json() == {
+    response = response.json()
+    response['created_at'] = response['created_at'].split('.')[0]
+    response['updated_at'] = response['updated_at'].split('.')[0]
+
+    assert response == {
         'id': 1,
         'title': 'Test todo',
         'description': 'Test todo description',
