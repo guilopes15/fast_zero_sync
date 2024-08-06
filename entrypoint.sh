@@ -4,4 +4,6 @@
 poetry run alembic upgrade head
 
 # Inicia a aplicação
-poetry run fastapi run fast_zero/app.py
+poetry run uvicorn --host 0.0.0.0 --port 8000 fast_zero.app:app
+
+#chmod +x entrypoint.sh - permissão de execução
