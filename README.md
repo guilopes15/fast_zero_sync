@@ -2,7 +2,7 @@
 
 Código do curso fast zero.
 
-Disponibilizado pelo [@dunossauro](https://github.com/dunossauro)
+Disponibilizado pelo [@dunossauro](https://github.com/dunossauro).
 
 ---
 
@@ -13,6 +13,6 @@ Este curso tem como objetivo abranger o desenvolvimento web, com a criação de 
 
 ### Links
 
-Assista curso completo em video no [youtube](https://www.youtube.com/watch?v=QShMRcicxnE&list=PLOQgLBuj2-3IuFbt-wJw2p2NiV9WTRzIP).
+Assista o curso completo em video no [youtube](https://www.youtube.com/watch?v=QShMRcicxnE&list=PLOQgLBuj2-3IuFbt-wJw2p2NiV9WTRzIP).
 
 Acesse o material escrito [aqui](https://fastapidozero.dunossauro.com/).
