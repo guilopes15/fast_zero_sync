@@ -48,7 +48,7 @@ def client(session):
 @pytest.fixture(scope='session')
 def engine():
     # cria um conteiner so para testes e 'mata' quando o with terminar
-    with PostgresContainer('postgres:16', driver='psycopg') as postgres:
+    with PostgresContainer('postgres:16', driver='psycopg2') as postgres:
         _engine = create_engine(postgres.get_connection_url())
 
         with _engine.begin():

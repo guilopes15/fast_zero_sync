@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-packages = [{include = "fast_zero"}]
+
 
 [tool.poetry.dependencies]
 python = "3.12.*"
@@ -15,8 +15,7 @@ alembic = "^1.13.2"
 pwdlib = {extras = ["argon2"], version = "^0.2.0"}
 python-multipart = "^0.0.9"
 pyjwt = "^2.8.0"
-psycopg = {extras = ["binary"], version = "^3.2.1"} #mudei para o psycopg2 por causa de um erro ao aplicar a migração dentro do conteiner no fly.io
-psycopg2-binary = "^2.9.9"
+psycopg2-binary = "^2.9.9" #mudei para o psycopg2 por causa de um erro ao aplicar a migração dentro do conteiner no fly.io
 
 
 [tool.poetry.group.dev.dependencies]
