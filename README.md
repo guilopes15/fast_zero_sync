@@ -1,6 +1,7 @@
 # Fast Zero
 
-Código do curso fast zero
+Código do curso fast zero.
+
 Disponibilizado pelo [@dunossauro](https://github.com/dunossauro)
 
 ---
