@@ -1,8 +1,11 @@
+from contextlib import contextmanager
+from datetime import datetime
+
 import factory
 import factory.fuzzy
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
@@ -97,3 +100,30 @@ def token(client, user):
     )
 
     return response.json()['access_token']
+
+
+@pytest.fixture()
+def mock_db_time():
+    return _mock_db_time
+
+
+@contextmanager
+def _mock_db_time(
+    *,
+    model,
+    time={
+        'created_at_time': datetime(2024, 12, 13),
+        'updated_at_time': datetime(2024, 12, 14),
+    },
+):
+    def fake_time_hook(mapper, connection, target):
+        if hasattr(target, 'created_at'):
+            target.created_at = time['created_at_time']
+        if hasattr(target, 'updated_at'):
+            target.updated_at = time['updated_at_time']
+
+    event.listen(model, 'before_insert', fake_time_hook)
+
+    yield time
+
+    event.remove(model, 'before_insert', fake_time_hook)

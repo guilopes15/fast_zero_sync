@@ -7,7 +7,12 @@ from sqlalchemy.orm import Session
 
 from fast_zero.database import get_session
 from fast_zero.models import User
-from fast_zero.schemas import Message, UserList, UserPublic, UserSchema
+from fast_zero.schemas import (
+    Message,
+    UserList,
+    UserPublic,
+    UserSchema,
+)
 from fast_zero.security import get_current_user, get_password_hash
 
 router = APIRouter(prefix='/users', tags=['users'])
@@ -50,7 +55,7 @@ def create_user(user: UserSchema, session: T_Session):
 
 @router.get('/', response_model=UserList)
 def read_users(session: T_Session, limit: int = 10, skip: int = 0):
-    users = session.scalars(select(User).limit(limit).offset(skip))
+    users = session.scalars(select(User).limit(limit).offset(skip)).all()
     return {'users': users}
 
 
